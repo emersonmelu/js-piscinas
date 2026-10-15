@@ -161,7 +161,8 @@ export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [busca, setBusca] = useState('')
   const [modal, setModal] = useState(null)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false) // controle mobile
+  const [collapsed, setCollapsed] = useState(false) // controle desktop/tablet
   const [acao, setAcao] = useState(null)
   const irPara = (k) => { setTab(k); setAcao(null); setBusca('') }
   const acaoRapida = (a) => {
@@ -171,6 +172,7 @@ export default function App() {
     if (a === 'compra') { setTab('compras'); setAcao(null) }
     if (a === 'documento') { setTab('documentos'); setAcao('documento') }
   }
+
   const [vendas, setVendas] = useState([
     { id: 1, data: '2026-10-13', produtoId: 1, produto: 'Cloro Granulado 10kg', cliente: 'Carlos Mendes', qtd: 2, preco: 289.9, desc: 10, tipo: '%', bruto: 579.8, desconto: 57.98, total: 521.82, pagto: 'Pix' },
     { id: 2, data: '2026-10-14', produtoId: 2, produto: 'Bomba Filtrante 1/2 CV', cliente: 'Ana Souza', qtd: 1, preco: 1249, desc: 50, tipo: 'R$', bruto: 1249, desconto: 50, total: 1199, pagto: 'Cartão de Crédito' },
@@ -226,42 +228,156 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen">
-      <aside style={{ background: 'linear-gradient(180deg, #005bbe 0%, #004a9c 45%, #00306b 100%)', boxShadow: '0 10px 40px rgba(3,20,60,0.45), inset 0 1px 0 rgba(255,255,255,0.3)' }} className={`fixed inset-y-0 left-0 z-40 m-3 flex w-64 flex-col overflow-hidden rounded-2xl border border-white/20 p-4 transition-transform lg:translate-x-0 ${open ? '' : '-translate-x-[110%]'}`}>
-        <img src="/logo.png" alt="JS Piscinas" className="mx-auto mb-4 w-full max-w-[220px] drop-shadow-[0_6px_14px_rgba(0,20,60,0.45)]" />
-        <nav className="flex flex-col gap-1">
-          {menu.map((m) => (
-            <button key={m.k} onClick={() => { irPara(m.k); setOpen(false) }}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left font-bold transition ${
-                tab === m.k ? 'bg-gradient-to-r from-[#ffc400] to-[#f28c1b] text-[#003a7d] shadow-lg' : 'hover:bg-white/15'}`}>
-              <Icon n={m.i} />{m.l}
-            </button>
-          ))}
+      {/* OVERLAY ESCURO PARA MOBILE QUANDO MENU ABERTO */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-[#021028]/70 backdrop-blur-sm lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* MENU LATERAL RESPONSIVO COM SUPORTE A MINIMIZAR */}
+      <aside
+        style={{
+          background: 'linear-gradient(180deg, #005bbe 0%, #004a9c 45%, #00306b 100%)',
+          boxShadow: '0 10px 40px rgba(3,20,60,0.45), inset 0 1px 0 rgba(255,255,255,0.3)',
+        }}
+        className={`fixed inset-y-0 left-0 z-40 m-3 flex flex-col overflow-hidden rounded-2xl border border-white/20 transition-all duration-300 ${
+          collapsed ? 'w-20 p-2.5' : 'w-64 p-4'
+        } ${open ? 'translate-x-0' : '-translate-x-[120%] lg:translate-x-0'}`}
+      >
+        {/* CABEÇALHO DA SIDEBAR COM LOGO COMPACTA E BOTÃO DE MINIMIZAR */}
+        <div className="mb-4 flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+          {!collapsed ? (
+            <div className="flex items-center gap-2 overflow-hidden px-1">
+              <img
+                src="/logo.png"
+                alt="JS Piscinas"
+                className="h-10 w-auto max-w-[140px] object-contain drop-shadow-[0_4px_8px_rgba(0,20,60,0.4)]"
+              />
+            </div>
+          ) : (
+            <div className="mx-auto flex h-10 w-10 items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="JS Piscinas"
+                className="h-8 w-8 object-contain drop-shadow"
+              />
+            </div>
+          )}
+
+          {/* BOTÃO PARA MINIMIZAR / EXPANDIR SIDEBAR (DESKTOP E MOBILE) */}
+          <button
+            onClick={() => {
+              if (window.innerWidth < 1024) {
+                setOpen(false)
+              } else {
+                setCollapsed(!collapsed)
+              }
+            }}
+            title={collapsed ? 'Expandir menu lateral' : 'Minimizar menu lateral'}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white/80 transition hover:bg-white/25 hover:text-white"
+          >
+            <svg
+              className={`h-4 w-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* NAVEGAÇÃO DE ITENS */}
+        <nav className="flex flex-col gap-1.5">
+          {menu.map((m) => {
+            const active = tab === m.k
+            return (
+              <button
+                key={m.k}
+                onClick={() => {
+                  irPara(m.k)
+                  setOpen(false)
+                }}
+                title={collapsed ? m.l : undefined}
+                className={`flex items-center rounded-xl font-bold transition ${
+                  collapsed ? 'justify-center p-3' : 'gap-3 px-3.5 py-2.5 text-left'
+                } ${
+                  active
+                    ? 'bg-gradient-to-r from-[#ffc400] to-[#f28c1b] text-[#003a7d] shadow-lg'
+                    : 'text-white/90 hover:bg-white/15 hover:text-white'
+                }`}
+              >
+                <Icon n={m.i} className="h-5 w-5 shrink-0" />
+                {!collapsed && <span className="truncate text-sm">{m.l}</span>}
+              </button>
+            )
+          })}
         </nav>
-        <div className="mt-auto pt-4 flex flex-col gap-2">
-          {user?.email && (
-            <p className="text-center text-xs text-cyan-200/80 truncate px-2">
+
+        {/* RODAPÉ DO MENU LATERAL */}
+        <div className="mt-auto pt-3 flex flex-col gap-2 border-t border-white/10">
+          {!collapsed && user?.email && (
+            <p className="text-center text-[11px] text-cyan-200/80 truncate px-1">
               Sessão: {user.email}
             </p>
           )}
+
           <button
             onClick={() => setIsAuthenticated(false)}
-            className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-bold text-white transition hover:bg-red-500/40"
+            title="Terminar Sessão"
+            className={`flex items-center justify-center rounded-xl border border-white/20 bg-white/10 text-xs font-bold text-white transition hover:bg-red-500/40 ${
+              collapsed ? 'p-2.5' : 'gap-2 px-3 py-2'
+            }`}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            Terminar Sessão
+            {!collapsed && <span>Terminar Sessão</span>}
           </button>
-          <p className="text-center text-[10px] text-white/50">Sistema de gestão · JS Piscinas</p>
+
+          {!collapsed && (
+            <p className="text-center text-[10px] text-white/50">Sistema de gestão · JS Piscinas</p>
+          )}
         </div>
       </aside>
 
-      <main className="w-full p-4 lg:ml-72 lg:p-8">
+      {/* ÁREA PRINCIPAL COM MARGEM DINÂMICA CONFORME SIDEBAR MINIMIZADA */}
+      <main className={`w-full p-4 transition-all duration-300 lg:p-8 ${collapsed ? 'lg:ml-24' : 'lg:ml-72'}`}>
         <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <button className="btn lg:hidden" onClick={() => setOpen(!open)}><Icon n="menu" /></button>
+            {/* BOTÃO MOBILE PARA ABRIR MENU */}
+            <button
+              className="btn lg:hidden flex items-center gap-1.5"
+              onClick={() => setOpen(true)}
+              title="Abrir menu"
+            >
+              <Icon n="menu" />
+              <span className="text-xs">Menu</span>
+            </button>
+
+            {/* BOTÃO DESKTOP PARA ALTERNAR MINIMIZAÇÃO */}
+            <button
+              className="btn hidden lg:flex items-center gap-1.5 !px-2.5 !py-2"
+              onClick={() => setCollapsed(!collapsed)}
+              title={collapsed ? 'Expandir menu lateral' : 'Minimizar menu lateral'}
+            >
+              <svg
+                className={`h-4 w-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h16" />
+              </svg>
+            </button>
+
             <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
           </div>
+
           {(tab === 'catalogo' || tab === 'estoque') && (
             <div className="flex flex-wrap gap-3">
               <div className="relative"><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/70"><Icon n="search" className="h-4 w-4" /></span><input className="field !pl-9 w-full" placeholder="Buscar produto..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
