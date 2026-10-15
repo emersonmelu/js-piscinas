@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import Vendas from './Vendas.jsx'
 import Documentos from './Documentos.jsx'
 import Compras from './Compras.jsx'
+import Configuracoes, { DADOS_EMPRESA_PADRAO } from './Configuracoes.jsx'
 import Login from './Login.jsx'
 
 const initial = [
@@ -25,6 +26,7 @@ const paths = {
   compras: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
   documentos: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
   vendas: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+  configuracoes: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
   menu: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
   Químicos: '<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
   Equipamentos: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
@@ -53,6 +55,7 @@ const menu = [
   { k: 'estoque', l: 'Estoque', i: 'estoque' },
   { k: 'compras', l: 'Compras', i: 'compras' },
   { k: 'documentos', l: 'Documentos', i: 'documentos' },
+  { k: 'configuracoes', l: 'Configurações', i: 'configuracoes' },
 ]
 
 function Modal({ item, onSave, onClose }) {
@@ -173,6 +176,24 @@ export default function App() {
     if (a === 'documento') { setTab('documentos'); setAcao('documento') }
   }
 
+  const [dadosEmpresa, setDadosEmpresa] = useState(() => {
+    try {
+      const salvo = localStorage.getItem('js_piscinas_dados_empresa')
+      return salvo ? JSON.parse(salvo) : DADOS_EMPRESA_PADRAO
+    } catch {
+      return DADOS_EMPRESA_PADRAO
+    }
+  })
+
+  const salvarDadosEmpresa = (novosDados) => {
+    setDadosEmpresa(novosDados)
+    try {
+      localStorage.setItem('js_piscinas_dados_empresa', JSON.stringify(novosDados))
+    } catch (e) {
+      console.error('Erro ao salvar dados da empresa no localStorage:', e)
+    }
+  }
+
   const [vendas, setVendas] = useState([
     { id: 1, data: '2026-10-13', produtoId: 1, produto: 'Cloro Granulado 10kg', cliente: 'Carlos Mendes', qtd: 2, preco: 289.9, desc: 10, tipo: '%', bruto: 579.8, desconto: 57.98, total: 521.82, pagto: 'Pix' },
     { id: 2, data: '2026-10-14', produtoId: 2, produto: 'Bomba Filtrante 1/2 CV', cliente: 'Ana Souza', qtd: 1, preco: 1249, desc: 50, tipo: 'R$', bruto: 1249, desconto: 50, total: 1199, pagto: 'Cartão de Crédito' },
@@ -193,14 +214,79 @@ export default function App() {
     setItems(items.map((i) => (i.id === c.produtoId ? { ...i, qtd: Math.max(0, i.qtd - c.qtd) } : i)))
   }
   const registrar = (v) => {
-    setVendas([...vendas, { ...v, id: Math.max(0, ...vendas.map((x) => x.id)) + 1 }])
-    setItems(items.map((i) => (i.id === v.produtoId ? { ...i, qtd: i.qtd - v.qtd } : i)))
+    const novaVenda = { ...v, id: Math.max(0, ...vendas.map((x) => x.id)) + 1 }
+    setVendas([...vendas, novaVenda])
+
+    // Atualiza o estoque para cada produto vendido
+    if (v.itens && v.itens.length > 0) {
+      setItems((atuais) =>
+        atuais.map((i) => {
+          const itemVendido = v.itens.find((it) => it.produtoId === i.id)
+          return itemVendido ? { ...i, qtd: Math.max(0, i.qtd - itemVendido.qtd) } : i
+        })
+      )
+    } else if (v.produtoId) {
+      setItems((atuais) =>
+        atuais.map((i) => (i.id === v.produtoId ? { ...i, qtd: Math.max(0, i.qtd - v.qtd) } : i))
+      )
+    }
   }
+
+  const editarVenda = (vendaEditada) => {
+    const vendaAntiga = vendas.find((x) => x.id === vendaEditada.id)
+    if (!vendaAntiga) return
+
+    // Ajusta o estoque: devolve o que a venda antiga consumiu e desconta o que a nova venda consome
+    setItems((atuais) =>
+      atuais.map((prod) => {
+        let qtdAjustada = prod.qtd
+
+        // Devolve do antigo
+        if (vendaAntiga.itens && vendaAntiga.itens.length > 0) {
+          const itemAntigo = vendaAntiga.itens.find((it) => it.produtoId === prod.id)
+          if (itemAntigo) qtdAjustada += itemAntigo.qtd
+        } else if (vendaAntiga.produtoId === prod.id) {
+          qtdAjustada += vendaAntiga.qtd || 0
+        }
+
+        // Subtrai do novo
+        if (vendaEditada.itens && vendaEditada.itens.length > 0) {
+          const itemNovo = vendaEditada.itens.find((it) => it.produtoId === prod.id)
+          if (itemNovo) qtdAjustada -= itemNovo.qtd
+        } else if (vendaEditada.produtoId === prod.id) {
+          qtdAjustada -= vendaEditada.qtd || 0
+        }
+
+        return { ...prod, qtd: Math.max(0, qtdAjustada) }
+      })
+    )
+
+    // Atualiza a venda na lista
+    setVendas((atuais) =>
+      atuais.map((x) => (x.id === vendaEditada.id ? { ...vendaEditada } : x))
+    )
+  }
+
   const excluirVenda = (v) => {
-    if (!window.confirm('Excluir esta venda? A quantidade volta ao estoque.')) return
+    if (!window.confirm('Excluir esta venda? As quantidades voltarão ao estoque.')) return
     setVendas(vendas.filter((x) => x.id !== v.id))
-    setItems(items.map((i) => (i.id === v.produtoId ? { ...i, qtd: i.qtd + v.qtd } : i)))
+
+    // Devolve as quantidades ao estoque
+    if (v.itens && v.itens.length > 0) {
+      setItems((atuais) =>
+        atuais.map((i) => {
+          const itemEstorno = v.itens.find((it) => it.produtoId === i.id)
+          return itemEstorno ? { ...i, qtd: i.qtd + itemEstorno.qtd } : i
+        })
+      )
+    } else if (v.produtoId) {
+      setItems((atuais) =>
+        atuais.map((i) => (i.id === v.produtoId ? { ...i, qtd: i.qtd + v.qtd } : i))
+      )
+    }
   }
+
+
 
   const filtrados = useMemo(
     () => items.filter((i) => i.nome.toLowerCase().includes(busca.toLowerCase())),
@@ -246,27 +332,13 @@ export default function App() {
           collapsed ? 'w-20 p-2.5' : 'w-64 p-4'
         } ${open ? 'translate-x-0' : '-translate-x-[120%] lg:translate-x-0'}`}
       >
-        {/* CABEÇALHO DA SIDEBAR COM LOGO COMPACTA E BOTÃO DE MINIMIZAR */}
-        <div className="mb-4 flex items-center justify-between gap-2 border-b border-white/10 pb-3">
-          {!collapsed ? (
-            <div className="flex items-center gap-2 overflow-hidden px-1">
-              <img
-                src="/logo.png"
-                alt="JS Piscinas"
-                className="h-10 w-auto max-w-[140px] object-contain drop-shadow-[0_4px_8px_rgba(0,20,60,0.4)]"
-              />
-            </div>
-          ) : (
-            <div className="mx-auto flex h-10 w-10 items-center justify-center">
-              <img
-                src="/logo.png"
-                alt="JS Piscinas"
-                className="h-8 w-8 object-contain drop-shadow"
-              />
-            </div>
+        {/* 1. BARRA SUPERIOR DE CONTROLE / MINIMIZAR */}
+        <div className={`mb-3 flex items-center border-b border-white/10 pb-2.5 ${collapsed ? 'justify-center' : 'justify-between'}`}>
+          {!collapsed && (
+            <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
+              Navegação
+            </span>
           )}
-
-          {/* BOTÃO PARA MINIMIZAR / EXPANDIR SIDEBAR (DESKTOP E MOBILE) */}
           <button
             onClick={() => {
               if (window.innerWidth < 1024) {
@@ -289,6 +361,24 @@ export default function App() {
             </svg>
           </button>
         </div>
+
+        {/* 2. LOGO JS PISCINAS: ACIMA DAS OPÇÕES DO MENU E ABAIXO DA BARRA DE MINIMIZAR (+30% MAIOR) */}
+        <div className="mb-4 flex items-center justify-center px-1">
+          {!collapsed ? (
+            <img
+              src="/logo.png"
+              alt="JS Piscinas"
+              className="h-28 w-auto max-w-[245px] object-contain drop-shadow-[0_8px_16px_rgba(0,20,60,0.55)] transition-all duration-300 hover:scale-105"
+            />
+          ) : (
+            <img
+              src="/logo.png"
+              alt="JS Piscinas"
+              className="h-12 w-12 object-contain drop-shadow"
+            />
+          )}
+        </div>
+
 
         {/* NAVEGAÇÃO DE ITENS */}
         <nav className="flex flex-col gap-1.5">
@@ -392,7 +482,9 @@ export default function App() {
 
         {tab === 'compras' && <Compras items={items} compras={compras} onRegistrar={registrarCompra} onExcluir={excluirCompra} />}
 
-        {tab === 'vendas' && <Vendas abrir={acao === 'venda'} items={items} vendas={vendas} onRegistrar={registrar} onExcluir={excluirVenda} />}
+        {tab === 'vendas' && <Vendas abrir={acao === 'venda'} items={items} vendas={vendas} dadosEmpresa={dadosEmpresa} onRegistrar={registrar} onEditar={editarVenda} onExcluir={excluirVenda} />}
+
+        {tab === 'configuracoes' && <Configuracoes dadosEmpresa={dadosEmpresa} onSalvarEmpresa={salvarDadosEmpresa} />}
 
         {tab === 'catalogo' && (
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
