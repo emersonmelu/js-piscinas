@@ -93,13 +93,13 @@ export default function Login({ onLogin, onForgotPassword }) {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-cyan-300/20 blur-2xl" />
 
-          {/* CABEÇALHO DO CARTÃO: LOGO E TÍTULO */}
-          <div className="flex flex-col items-center text-center mb-8">
+          {/* CABEÇALHO DO CARTÃO: LOGO PROPORCIONAL E ELEGANTE */}
+          <div className="flex flex-col items-center text-center mb-6">
             <div className="relative mb-3 flex items-center justify-center">
               <img
                 src="/logo.png"
                 alt="JS Piscinas"
-                className="h-16 w-auto max-w-[190px] object-contain drop-shadow-[0_8px_16px_rgba(0,35,90,0.45)] transition-transform duration-300 hover:scale-105"
+                className="h-28 sm:h-32 w-auto max-w-[260px] object-contain drop-shadow-[0_10px_20px_rgba(0,35,90,0.55)] transition-transform duration-300 hover:scale-105"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none'
                   const fallback = document.getElementById('logo-text-fallback')
@@ -110,25 +110,13 @@ export default function Login({ onLogin, onForgotPassword }) {
               <div
                 id="logo-text-fallback"
                 style={{ display: 'none' }}
-                className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-[#005bbe] to-cyan-400 items-center justify-center shadow-lg border border-white/30"
+                className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-[#ffc400] to-[#f28c1b] items-center justify-center shadow-lg border border-white/30"
               >
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <span className="text-2xl font-black text-[#003a7d]">JS</span>
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-300/30 bg-cyan-500/10 backdrop-blur-md mb-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-[11px] font-semibold tracking-wider uppercase text-cyan-200">
-                Sistema de Gestão Integrada
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-[26px] font-extrabold text-white tracking-tight">
-              JS Piscinas
-            </h1>
-            <p className="text-sm text-cyan-100/80 font-medium mt-1">
+            <p className="text-sm text-cyan-100/80 font-medium">
               Bem-vindo ao seu painel de controle aquático
             </p>
           </div>
@@ -242,33 +230,27 @@ export default function Login({ onLogin, onForgotPassword }) {
               </label>
             </div>
 
-            {/* BOTÃO DE ENTRAR COM ONDULAÇÃO LUMINOSA & HOVER #005BBE */}
+            {/* BOTÃO DE ENTRAR COM O DEGRADÊ AMARELO PADRÃO (#ffc400 -> #f28c1b) */}
             <button
               type="submit"
               disabled={isLoading}
-              className="relative w-full group overflow-hidden rounded-xl py-3.5 px-4 font-bold text-white text-sm shadow-[0_10px_25px_rgba(0,91,190,0.5)] transition-all duration-300 active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none mt-2"
+              className="relative w-full group overflow-hidden rounded-xl py-3.5 px-4 font-extrabold text-[#003a7d] text-sm shadow-[0_10px_25px_rgba(242,140,27,0.45)] transition-all duration-300 hover:brightness-105 hover:shadow-[0_12px_28px_rgba(255,196,0,0.55)] active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none mt-2"
               style={{
-                backgroundColor: '#005BBE',
-                backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%)'
+                background: 'linear-gradient(135deg, #ffc400 0%, #f28c1b 100%)',
               }}
             >
               {/* Efeito de onda / reflexo luminoso contínuo no hover */}
               <div
-                className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none bg-gradient-to-r from-transparent via-white/35 to-transparent"
-              />
-
-              {/* Intensificação de cor e brilho no hover */}
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-[#0066d6] via-[#005bbe] to-[#0284c7]"
+                className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none bg-gradient-to-r from-transparent via-white/50 to-transparent"
               />
 
               {/* Brilho de borda superior */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-white/40" />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-white/60" />
 
-              <span className="relative z-10 flex items-center justify-center gap-2 font-semibold tracking-wide">
+              <span className="relative z-10 flex items-center justify-center gap-2 font-black tracking-wide text-base">
                 {isLoading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-[#003a7d]" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
@@ -278,11 +260,11 @@ export default function Login({ onLogin, onForgotPassword }) {
                   <>
                     <span>Entrar no Sistema</span>
                     <svg
-                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                      className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="2.5"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
@@ -291,6 +273,22 @@ export default function Login({ onLogin, onForgotPassword }) {
               </span>
             </button>
           </form>
+
+          {/* DICA DE ACESSO RÁPIDO / CREDENCIAIS PADRÃO */}
+          <div className="mt-4 pt-3 flex flex-col items-center gap-1.5 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('admin@jspiscinas.com')
+                setPassword('admin123')
+                setErrorMessage('')
+              }}
+              className="text-xs text-cyan-200/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+            >
+              <span>🔑</span>
+              <span>Usar credenciais de demonstração (admin)</span>
+            </button>
+          </div>
 
           {/* RODAPÉ DO CARTÃO COM SEGURANÇA E SUPORTE */}
           <div className="mt-7 pt-5 border-t border-white/10 flex items-center justify-between text-[11px] text-cyan-200/60">
